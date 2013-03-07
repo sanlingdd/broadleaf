@@ -69,11 +69,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -85,6 +80,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import javax.annotation.Resource;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 /**
  * @author Jeff Fischer
@@ -135,6 +135,21 @@ public class Metadata {
                 metadata.setName(field.getName());
                 metadata.setExcluded(false);
                 attributes.put(field.getName(), metadata);
+            }
+
+            FieldMetadata metadata = attributes.get(field.getName());
+            AdminPresentationClass adminPresentationClass;
+            if (parentClass != null) {
+                metadata.setOwningClass(parentClass.getName());
+                adminPresentationClass = parentClass.getAnnotation(AdminPresentationClass.class);
+            } else {
+                adminPresentationClass = targetClass.getAnnotation(AdminPresentationClass.class);
+            }
+            if (adminPresentationClass != null) {
+                String friendlyName = adminPresentationClass.friendlyName();
+                if (!StringUtils.isEmpty(friendlyName) && StringUtils.isEmpty(metadata.getOwningClassFriendlyName())) {
+                    metadata.setOwningClassFriendlyName(friendlyName);
+                }
             }
         }
         return attributes;
@@ -506,19 +521,6 @@ public class Metadata {
 
         metadata.setName(field.getName());
         metadata.setTargetClass(targetClass.getName());
-        AdminPresentationClass adminPresentationClass;
-        if (parentClass != null) {
-            metadata.setOwningClass(parentClass.getName());
-            adminPresentationClass = parentClass.getAnnotation(AdminPresentationClass.class);
-        } else {
-            adminPresentationClass = targetClass.getAnnotation(AdminPresentationClass.class);
-        }
-        if (adminPresentationClass != null) {
-            String friendlyName = adminPresentationClass.friendlyName();
-            if (!StringUtils.isEmpty(friendlyName)) {
-                metadata.setOwningClassFriendlyName(friendlyName);
-            }
-        }
 
         metadata.setFieldName(field.getName());
 
@@ -678,20 +680,6 @@ public class Metadata {
         metadata.setPrefix(prefix);
         
         metadata.setTargetClass(targetClass.getName());
-        AdminPresentationClass adminPresentationClass;
-        if (parentClass != null) {
-            metadata.setOwningClass(parentClass.getName());
-            adminPresentationClass = parentClass.getAnnotation(AdminPresentationClass.class);
-        } else {
-            adminPresentationClass = targetClass.getAnnotation(AdminPresentationClass.class);
-        }
-        if (adminPresentationClass != null) {
-            String friendlyName = adminPresentationClass.friendlyName();
-            if (!StringUtils.isEmpty(friendlyName)) {
-                metadata.setOwningClassFriendlyName(friendlyName);
-            }
-        }
-
         metadata.setFieldName(field.getName());
         org.broadleafcommerce.openadmin.client.dto.OperationTypes dtoOperationTypes = new org.broadleafcommerce.openadmin.client.dto.OperationTypes(OperationType.MAP, OperationType.MAP, OperationType.MAP, OperationType.MAP, OperationType.MAP);
         if (map.getAddType() != null) {
@@ -942,20 +930,6 @@ public class Metadata {
             metadata = new AdornedTargetCollectionMetadata();
         }
         metadata.setTargetClass(targetClass.getName());
-        AdminPresentationClass adminPresentationClass;
-        if (parentClass != null) {
-            metadata.setOwningClass(parentClass.getName());
-            adminPresentationClass = parentClass.getAnnotation(AdminPresentationClass.class);
-        } else {
-            adminPresentationClass = targetClass.getAnnotation(AdminPresentationClass.class);
-        }
-        if (adminPresentationClass != null) {
-            String friendlyName = adminPresentationClass.friendlyName();
-            if (!StringUtils.isEmpty(friendlyName)) {
-                metadata.setOwningClassFriendlyName(friendlyName);
-            }
-        }
-
         metadata.setFieldName(field.getName());
 
         if (adornedTargetCollectionMetadata.getReadOnly() != null) {
@@ -1157,20 +1131,6 @@ public class Metadata {
             metadata = new BasicCollectionMetadata();
         }
         metadata.setTargetClass(targetClass.getName());
-        AdminPresentationClass adminPresentationClass;
-        if (parentClass != null) {
-            metadata.setOwningClass(parentClass.getName());
-            adminPresentationClass = parentClass.getAnnotation(AdminPresentationClass.class);
-        } else {
-            adminPresentationClass = targetClass.getAnnotation(AdminPresentationClass.class);
-        }
-        if (adminPresentationClass != null) {
-            String friendlyName = adminPresentationClass.friendlyName();
-            if (!StringUtils.isEmpty(friendlyName)) {
-                metadata.setOwningClassFriendlyName(friendlyName);
-            }
-        }
-
         metadata.setFieldName(field.getName());
         if (collectionMetadata.getReadOnly() != null) {
             metadata.setMutable(!collectionMetadata.getReadOnly());
@@ -1503,17 +1463,19 @@ public class Metadata {
             if (metadata.getOptionListEntity().equals(DataDrivenEnumerationValueImpl.class.getName())) {
                 criteria.add(Restrictions.eq("hidden", false));
             }
-            for (String[] param : metadata.getOptionFilterParams()) {
-                Criteria current = criteria;
-                String key = param[0];
-                if (!key.equals(".ignore")) {
-                    if (key.contains(".")) {
-                        String[] parts = key.split("\\.");
-                        for (int j=0;j<parts.length-1;j++){
-                            current = current.createCriteria(parts[j], parts[j]);
+            if (metadata.getOptionFilterParams() != null) {
+                for (String[] param : metadata.getOptionFilterParams()) {
+                    Criteria current = criteria;
+                    String key = param[0];
+                    if (!key.equals(".ignore")) {
+                        if (key.contains(".")) {
+                            String[] parts = key.split("\\.");
+                            for (int j = 0; j < parts.length - 1; j++) {
+                                current = current.createCriteria(parts[j], parts[j]);
+                            }
                         }
+                        current.add(Restrictions.eq(key, convertType(param[1], OptionFilterParamType.valueOf(param[2]))));
                     }
-                    current.add(Restrictions.eq(key, convertType(param[1], OptionFilterParamType.valueOf(param[2]))));
                 }
             }
             List results = criteria.list();

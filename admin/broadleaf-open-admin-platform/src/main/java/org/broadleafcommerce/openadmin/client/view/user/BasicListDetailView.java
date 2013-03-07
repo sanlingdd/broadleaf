@@ -17,6 +17,7 @@
 package org.broadleafcommerce.openadmin.client.view.user;
 
 import org.broadleafcommerce.openadmin.client.reflection.Instantiable;
+import org.broadleafcommerce.openadmin.client.view.dynamic.DynamicEditDisplay;
 import org.broadleafcommerce.openadmin.client.view.dynamic.DynamicEntityListDisplay;
 import org.broadleafcommerce.openadmin.client.view.dynamic.DynamicEntityListView;
 import org.broadleafcommerce.openadmin.client.view.dynamic.form.DynamicFormDisplay;
@@ -32,7 +33,7 @@ import com.smartgwt.client.widgets.layout.VLayout;
  * @author bpolster
  *
  */
-public abstract class BasicListDetailView extends HLayout implements Instantiable {
+public abstract class BasicListDetailView extends HLayout implements Instantiable, DynamicEditDisplay {
 
     protected DynamicFormView dynamicFormDisplay;
     protected DynamicEntityListView listDisplay;
@@ -48,7 +49,7 @@ public abstract class BasicListDetailView extends HLayout implements Instantiabl
     
     public void build(DataSource entityDataSource, DataSource... additionalDataSources) {
         VLayout leftVerticalLayout = new VLayout();
-        leftVerticalLayout.setID(getViewPrefix()+"permissionLeftVerticalLayout");
+        leftVerticalLayout.setID(getViewPrefix()+"LeftVerticalLayout");
         leftVerticalLayout.setHeight100();
         leftVerticalLayout.setWidth("50%");
         leftVerticalLayout.setShowResizeBar(true);

@@ -23,7 +23,6 @@ import org.broadleafcommerce.common.presentation.AdminPresentation;
 import org.broadleafcommerce.common.presentation.AdminPresentationClass;
 import org.broadleafcommerce.common.presentation.AdminPresentationMap;
 import org.broadleafcommerce.common.presentation.AdminPresentationMapKey;
-import org.broadleafcommerce.common.presentation.PopulateToOneFieldsEnum;
 import org.broadleafcommerce.common.presentation.client.SupportedFieldType;
 import org.broadleafcommerce.common.presentation.client.VisibilityEnum;
 import org.broadleafcommerce.common.util.DateUtil;
@@ -45,6 +44,14 @@ import org.hibernate.annotations.Index;
 import org.hibernate.annotations.MapKey;
 import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
+
+import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -69,14 +76,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import java.lang.reflect.Proxy;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * The Class SkuImpl is the default implementation of {@link Sku}. A SKU is a
  * specific item that can be sold including any specific attributes of the item
@@ -98,6 +97,7 @@ import java.util.Map;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "BLC_SKU")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "blStandardElements")
+@AdminPresentationClass(friendlyName = "baseSku")
 public class SkuImpl implements Sku {
 
     private static final Log LOG = LogFactory.getLog(SkuImpl.class);
@@ -663,7 +663,7 @@ public class SkuImpl implements Sku {
                 LOG.debug("sku, " + id + ", inactive due to category being inactive");
             }
         }
-        return this.isActive() && product.isActive() && category.isActive();
+        return this.isActive() && (product == null || product.isActive()) && (category == null || category.isActive());
     }
 
     @Override
@@ -741,15 +741,28 @@ public class SkuImpl implements Sku {
     }
 
     @Override
+    @Deprecated
     public Boolean isMachineSortable() {
         if (isMachineSortable == null && hasDefaultSku()) {
             return lookupDefaultSku().isMachineSortable();
         }
-        return isMachineSortable;
+        return isMachineSortable == null ? false : isMachineSortable;
+    }
+
+    public Boolean getIsMachineSortable() {
+        if (isMachineSortable == null && hasDefaultSku()) {
+            return lookupDefaultSku().getIsMachineSortable();
+        }
+        return isMachineSortable == null ? false : isMachineSortable;
     }
 
     @Override
+    @Deprecated
     public void setMachineSortable(Boolean isMachineSortable) {
+        this.isMachineSortable = isMachineSortable;
+    }
+
+    public void setIsMachineSortable(Boolean isMachineSortable) {
         this.isMachineSortable = isMachineSortable;
     }
 
