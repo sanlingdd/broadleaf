@@ -467,7 +467,7 @@ public class OrderOfferProcessorImpl extends AbstractBaseProcessor implements Or
             itemDetail.setQuantity(promotableDetail.getQuantity());
         }
 
-        if (itemDetail.getUseSalePrice() != promotableDetail.useSaleAdjustments()) {
+        if (itemDetail.getUseSalePrice() != promotableDetail.useSaleAdjustments() && promotableDetail.isAdjustmentsFinalized()) {
             itemDetail.setUseSalePrice(promotableDetail.useSaleAdjustments());
         }
 
