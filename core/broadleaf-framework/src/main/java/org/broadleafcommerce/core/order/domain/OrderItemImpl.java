@@ -47,6 +47,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -418,7 +425,16 @@ public class OrderItemImpl implements OrderItem, Cloneable {
 
     @Override
     public Money getPriceBeforeAdjustments(boolean allowSalesPrice) {
-        if (allowSalesPrice) {
+        boolean retailPriceOverride = false;
+        
+        for (OrderItemPriceDetail oipd : getOrderItemPriceDetails()) {
+            if (oipd.getUseSalePrice() == false) {
+                retailPriceOverride = true;
+                break;
+            }
+        }
+        
+        if (allowSalesPrice && !retailPriceOverride) {
             return getSalePrice();
         } else {
             return getRetailPrice();
