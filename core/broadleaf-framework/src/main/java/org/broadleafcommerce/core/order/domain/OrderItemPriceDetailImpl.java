@@ -77,8 +77,8 @@ public class OrderItemPriceDetailImpl implements OrderItemPriceDetail {
     protected int quantity;
 
     @Column(name = "USE_SALE_PRICE")
-    @AdminPresentation(friendlyName = "OrderItemPriceDetailImpl_useSalePrice", order = 5, group = "OrderItemPriceDetailImpl_Pricing")
-    protected Boolean useSalePrice;
+    @AdminPresentation(friendlyName = "OrderItemPriceDetailImpl_useSalePrice", order = 5, group = "OrderItemPriceDetailImpl_Pricing", prominent = true)
+    protected Boolean useSalePrice = true;
 
     @Override
     public Long getId() {
