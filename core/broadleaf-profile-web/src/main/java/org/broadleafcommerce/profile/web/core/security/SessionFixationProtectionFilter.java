@@ -17,6 +17,8 @@
 package org.broadleafcommerce.profile.web.core.security;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.broadleafcommerce.common.encryption.EncryptionModule;
 import org.broadleafcommerce.common.security.RandomGenerator;
 import org.broadleafcommerce.common.security.util.CookieUtils;
@@ -32,9 +34,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
