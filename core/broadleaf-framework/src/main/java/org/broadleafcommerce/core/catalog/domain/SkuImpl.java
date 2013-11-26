@@ -520,11 +520,6 @@ public class SkuImpl implements Sku {
     }
 
     @Override
-    public Money getPrice() {
-        return isOnSale() ? getSalePrice() : getRetailPrice();
-    }
-
-    @Override
     @Deprecated
     public Money getListPrice() {
         return getRetailPrice();
