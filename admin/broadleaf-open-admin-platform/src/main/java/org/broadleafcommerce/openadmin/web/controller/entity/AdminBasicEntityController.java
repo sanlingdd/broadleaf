@@ -283,7 +283,7 @@ public class AdminBasicEntityController extends AdminAbstractController {
 
         extractDynamicFormFields(entityForm);
         List<SectionCrumb> sectionCrumbs = getSectionCrumbs(request, null, null);
-        Entity entity = service.addEntity(entityForm, getSectionCustomCriteria(), sectionCrumbs).getEntity();
+        Entity entity = service.addEntity(entityForm, getSectionCustomCriteria(pathVars), sectionCrumbs).getEntity();
         entityFormValidator.validate(entityForm, entity, result);
 
         if (result.hasErrors()) {
@@ -384,7 +384,7 @@ public class AdminBasicEntityController extends AdminAbstractController {
 
         extractDynamicFormFields(entityForm);
         
-        Entity entity = service.updateEntity(entityForm, getSectionCustomCriteria(), sectionCrumbs).getEntity();
+        Entity entity = service.updateEntity(entityForm, getSectionCustomCriteria(pathVars), sectionCrumbs).getEntity();
 
         entityFormValidator.validate(entityForm, entity, result);
         if (result.hasErrors()) {
@@ -437,7 +437,7 @@ public class AdminBasicEntityController extends AdminAbstractController {
         List<SectionCrumb> sectionCrumbs = getSectionCrumbs(request, sectionKey, id);
 
         try {
-            service.removeEntity(entityForm, getSectionCustomCriteria(), sectionCrumbs);
+            service.removeEntity(entityForm, getSectionCustomCriteria(pathVars), sectionCrumbs);
         } catch (ServiceException e) {
             if (e.containsCause(ConstraintViolationException.class)) {
                 // Create a flash attribute for the unsuccessful delete

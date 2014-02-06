@@ -516,13 +516,20 @@ public abstract class AdminAbstractController extends BroadleafAbstractControlle
     }
     
     /**
+     * @deprecated in favor of {@link #getSectionCustomCriteria(Map)}
+     */
+    protected String[] getSectionCustomCriteria() {
+        return null;
+    }
+    
+    /**
      * This method is invoked for every request for this controller. By default, we do not want to specify a custom
      * criteria, but specialized controllers may want to.
      * 
      * @return the custom criteria for this section for all requests, if any
      */
-    protected String[] getSectionCustomCriteria() {
-        return null;
+    protected String[] getSectionCustomCriteria(Map<String, String> pathVars) {
+        return getSectionCustomCriteria();
     }
     
     /**
@@ -616,7 +623,7 @@ public abstract class AdminAbstractController extends BroadleafAbstractControlle
             List<SectionCrumb> sectionCrumbs, Map<String, String> pathVars) {
         PersistencePackageRequest ppr = PersistencePackageRequest.standard()
                 .withCeilingEntityClassname(sectionClassName)
-                .withCustomCriteria(getSectionCustomCriteria())
+                .withCustomCriteria(getSectionCustomCriteria(pathVars))
                 .withSectionCrumbs(sectionCrumbs);
 
         attachSectionSpecificInfo(ppr, pathVars);
@@ -645,7 +652,7 @@ public abstract class AdminAbstractController extends BroadleafAbstractControlle
         FilterAndSortCriteria[] fascs = getCriteria(requestParams);
         PersistencePackageRequest ppr = PersistencePackageRequest.standard()
                 .withCeilingEntityClassname(sectionClassName)
-                .withCustomCriteria(getSectionCustomCriteria())
+                .withCustomCriteria(getSectionCustomCriteria(pathVars))
                 .withFilterAndSortCriteria(fascs)
                 .withStartIndex(getStartIndex(requestParams))
                 .withMaxIndex(getMaxIndex(requestParams))
