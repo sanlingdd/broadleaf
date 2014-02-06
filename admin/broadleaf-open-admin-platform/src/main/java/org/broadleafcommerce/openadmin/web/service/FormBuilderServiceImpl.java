@@ -796,22 +796,22 @@ public class FormBuilderServiceImpl implements FormBuilderService {
                 ef.addListGrid(listGrid, md.getTab(), md.getTabOrder());
             }
         }
-        
-        for (ListGrid lg : ef.getAllListGrids()) {
-            // We always want the add option to be the first toolbar action for consistency
-            if (lg.getToolbarActions().isEmpty()) {
-                lg.addToolbarAction(DefaultListGridActions.ADD);
-            } else {
-                lg.getToolbarActions().add(0, DefaultListGridActions.ADD);
+        if(!ef.getReadOnly()) {
+            for (ListGrid lg : ef.getAllListGrids()) {
+                // We always want the add option to be the first toolbar action for consistency
+                if (lg.getToolbarActions().isEmpty()) {
+                    lg.addToolbarAction(DefaultListGridActions.ADD);
+                } else {
+                    lg.getToolbarActions().add(0, DefaultListGridActions.ADD);
+                }
             }
+            
+            if (CollectionUtils.isEmpty(ef.getActions())) {
+                ef.addAction(DefaultEntityFormActions.SAVE);
+            }
+            
+            ef.addAction(DefaultEntityFormActions.DELETE);
         }
-        
-        if (CollectionUtils.isEmpty(ef.getActions())) {
-            ef.addAction(DefaultEntityFormActions.SAVE);
-        }
-        
-        ef.addAction(DefaultEntityFormActions.DELETE);
-        
         extensionManager.getProxy().modifyDetailEntityForm(ef);
     }
     
