@@ -19,10 +19,19 @@
  */
 package org.broadleafcommerce.core.order.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.annotation.Resource;
+
 import org.broadleafcommerce.core.catalog.domain.Category;
 import org.broadleafcommerce.core.catalog.domain.Product;
 import org.broadleafcommerce.core.catalog.domain.ProductBundle;
 import org.broadleafcommerce.core.catalog.domain.ProductOption;
+import org.broadleafcommerce.core.catalog.domain.ProductOptionValue;
 import org.broadleafcommerce.core.catalog.domain.Sku;
 import org.broadleafcommerce.core.catalog.domain.SkuBundleItem;
 import org.broadleafcommerce.core.catalog.service.dynamic.DynamicSkuPrices;
@@ -37,6 +46,7 @@ import org.broadleafcommerce.core.order.domain.OrderItemAttribute;
 import org.broadleafcommerce.core.order.domain.OrderItemAttributeImpl;
 import org.broadleafcommerce.core.order.domain.PersonalMessage;
 import org.broadleafcommerce.core.order.service.call.AbstractOrderItemRequest;
+import org.broadleafcommerce.core.order.service.call.AdvancedProductBundleOrderItemRequest;
 import org.broadleafcommerce.core.order.service.call.BundleOrderItemRequest;
 import org.broadleafcommerce.core.order.service.call.DiscreteOrderItemRequest;
 import org.broadleafcommerce.core.order.service.call.GiftWrapOrderItemRequest;
@@ -47,20 +57,12 @@ import org.broadleafcommerce.core.order.service.call.ProductBundleOrderItemReque
 import org.broadleafcommerce.core.order.service.type.OrderItemType;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.annotation.Resource;
-
 @Service("blOrderItemService")
 public class OrderItemServiceImpl implements OrderItemService {
 
     @Resource(name="blOrderItemDao")
     protected OrderItemDao orderItemDao;
-    
+
     @Resource(name="blDynamicSkuPricingService" )
     protected DynamicSkuPricingService dynamicSkuPricingService;
 
@@ -411,6 +413,113 @@ public class OrderItemServiceImpl implements OrderItemService {
         }
         
         return orderItemRequest;
+    }
+
+    @Override
+    public OrderItem createBundleOrderItem(AdvancedProductBundleOrderItemRequest itemRequest, boolean saveItem) {
+        ProductBundle productBundle = itemRequest.getProductBundle();
+        BundleOrderItem bundleOrderItem = (BundleOrderItem) orderItemDao.create(OrderItemType.BUNDLE);
+        bundleOrderItem.setQuantity(itemRequest.getQuantity());
+        bundleOrderItem.setCategory(itemRequest.getCategory());
+        bundleOrderItem.setSku(itemRequest.getSku());
+        bundleOrderItem.setName(itemRequest.getName());
+        bundleOrderItem.setProductBundle(productBundle);
+        bundleOrderItem.setOrder(itemRequest.getOrder());
+
+        if (itemRequest.getSalePriceOverride() != null) {
+            bundleOrderItem.setSalePriceOverride(Boolean.TRUE);
+            bundleOrderItem.setSalePrice(itemRequest.getSalePriceOverride());
+            bundleOrderItem.setBaseSalePrice(itemRequest.getSalePriceOverride());
+        }
+
+        if (itemRequest.getRetailPriceOverride() != null) {
+            bundleOrderItem.setRetailPriceOverride(Boolean.TRUE);
+            bundleOrderItem.setRetailPrice(itemRequest.getRetailPriceOverride());
+            bundleOrderItem.setBaseRetailPrice(itemRequest.getRetailPriceOverride());
+        }
+
+        replaceChildBundleItemsWithOptionsWithMatchingSkus(itemRequest);
+
+        for (SkuBundleItem skuBundleItem : productBundle.getSkuBundleItems()) {
+
+            Product bundleProduct = skuBundleItem.getBundle();
+            Sku bundleSku = skuBundleItem.getSku();
+
+
+
+            Category bundleCategory = null;
+            if (itemRequest.getCategory() != null) {
+                bundleCategory = itemRequest.getCategory();
+            }
+
+            if (bundleCategory == null && bundleProduct != null) {
+                bundleCategory = bundleProduct.getDefaultCategory();
+            }
+
+            DiscreteOrderItemRequest bundleItemRequest = new DiscreteOrderItemRequest();
+            bundleItemRequest.setCategory(bundleCategory);
+            bundleItemRequest.setProduct(bundleProduct);
+            bundleItemRequest.setQuantity(skuBundleItem.getQuantity());
+            bundleItemRequest.setSku(bundleSku);
+            bundleItemRequest.setItemAttributes(itemRequest.getItemAttributes());
+            bundleItemRequest.setSalePriceOverride(skuBundleItem.getSalePrice());
+            bundleItemRequest.setBundleOrderItem(bundleOrderItem);
+
+            DiscreteOrderItem bundleDiscreteItem = createDiscreteOrderItem(bundleItemRequest);
+            bundleDiscreteItem.setSkuBundleItem(skuBundleItem);
+            bundleOrderItem.getDiscreteOrderItems().add(bundleDiscreteItem);
+        }
+
+        if (saveItem) {
+            bundleOrderItem = (BundleOrderItem) saveOrderItem(bundleOrderItem);
+        }
+
+        return bundleOrderItem;
+    }
+
+    private void replaceChildBundleItemsWithOptionsWithMatchingSkus(AdvancedProductBundleOrderItemRequest itemRequest) {
+        for (OrderItemRequestDTO item : itemRequest.getBundleOrderItems()) {
+            Map<String, String> itemAttributes = item.getItemAttributes();
+            // Loop through the Skus on the product bundle and replace them with a matching Sku
+            for (SkuBundleItem bundledSku : itemRequest.getProductBundle().getSkuBundleItems()) {
+                // TODO Check if this is an item that is eligible for sku replacement
+                // TODO The flag will need to be added to framework instead of extending SkuBundleItem
+                List<String> attributesFound = new ArrayList<String>();
+                if (bundledSku.getSku().getProduct().getId().equals(item.getProductId())) {
+                    // Loop through all the available Skus
+                    List<Sku> availableSkus = bundledSku.getSku().getProduct().getAllSkus();
+                    for (Sku sku : availableSkus) {
+                        // Loop through all the ProductOptions on the Sku
+                        for (ProductOptionValue optionValue : sku.getProductOptionValuesCollection()) {
+                            String skuAttributeName = optionValue.getProductOption().getAttributeName();
+                            String skuAttributeValue = optionValue.getAttributeValue();
+                            // Loop through the itemAttributes passed in to find matches against the Sku
+                            for (Map.Entry<String, String> requestAttribute : itemAttributes.entrySet()) {
+                                String requestAttributeName = requestAttribute.getKey();
+                                String requestAttributeValue = requestAttribute.getValue();
+                                // If attribute name matches, proceed to check the value
+                                if (skuAttributeName.equals(requestAttributeName)) {
+                                    // If the value matches, add the ProductOption to the list of matching attributes
+                                    if (skuAttributeValue.equals(requestAttributeValue)) {
+                                        attributesFound.add(skuAttributeName);
+                                    }
+                                }
+                            }   // -- End itemAttribute Loop
+                        }   // -- End ProductOptions on Sku loop
+                        // Set sku if it matched on all attributes otherwise clear the matches found for the next sku
+                        if (itemAttributes.size() == attributesFound.size()) {
+                            bundledSku.setSku(sku);
+                            // A match has been found, clear the list
+                            attributesFound.clear();
+                        } else {
+                            attributesFound.clear();
+                        }
+                    }   // -- End Sku loop
+                }
+            }   // -- End loop on the bundledSkus which are eligible for Sku matching based on ProductOptions
+        }   // -- End loop on bundles items that were passed in with ProductOptions selected on the front end
+        // Clear out the child items; All items were replaced by a match otherwise a it maintained the original Sku
+        itemRequest.getBundleOrderItems().clear();
     }
 
 }

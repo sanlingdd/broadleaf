@@ -19,6 +19,8 @@
  */
 package org.broadleafcommerce.core.order.service.workflow.add;
 
+import javax.annotation.Resource;
+
 import org.broadleafcommerce.core.catalog.domain.Category;
 import org.broadleafcommerce.core.catalog.domain.Product;
 import org.broadleafcommerce.core.catalog.domain.ProductBundle;
@@ -28,6 +30,7 @@ import org.broadleafcommerce.core.order.domain.Order;
 import org.broadleafcommerce.core.order.domain.OrderItem;
 import org.broadleafcommerce.core.order.service.OrderItemService;
 import org.broadleafcommerce.core.order.service.OrderService;
+import org.broadleafcommerce.core.order.service.call.AdvancedProductBundleOrderItemRequest;
 import org.broadleafcommerce.core.order.service.call.DiscreteOrderItemRequest;
 import org.broadleafcommerce.core.order.service.call.NonDiscreteOrderItemRequestDTO;
 import org.broadleafcommerce.core.order.service.call.OrderItemRequest;
@@ -36,8 +39,6 @@ import org.broadleafcommerce.core.order.service.call.ProductBundleOrderItemReque
 import org.broadleafcommerce.core.order.service.workflow.CartOperationRequest;
 import org.broadleafcommerce.core.workflow.BaseActivity;
 import org.broadleafcommerce.core.workflow.ProcessContext;
-
-import javax.annotation.Resource;
 
 public class AddOrderItemActivity extends BaseActivity<ProcessContext<CartOperationRequest>> {
     
@@ -57,21 +58,21 @@ public class AddOrderItemActivity extends BaseActivity<ProcessContext<CartOperat
 
         // Order has been verified in a previous activity -- the values in the request can be trusted
         Order order = request.getOrder();
-        
+
         Sku sku = null;
         if (orderItemRequestDTO.getSkuId() != null) {
             sku = catalogService.findSkuById(orderItemRequestDTO.getSkuId());
         }
-        
+
         Product product = null;
         if (orderItemRequestDTO.getProductId() != null) {
             product = catalogService.findProductById(orderItemRequestDTO.getProductId());
         }
-        
+
         Category category = null;
         if (orderItemRequestDTO.getCategoryId() != null) {
             category = catalogService.findCategoryById(orderItemRequestDTO.getCategoryId());
-        } 
+        }
 
         if (category == null && product != null) {
             category = product.getDefaultCategory();
@@ -98,6 +99,19 @@ public class AddOrderItemActivity extends BaseActivity<ProcessContext<CartOperat
             itemRequest.setSalePriceOverride(orderItemRequestDTO.getOverrideSalePrice());
             itemRequest.setRetailPriceOverride(orderItemRequestDTO.getOverrideRetailPrice());
             item = orderItemService.createDiscreteOrderItem(itemRequest);
+        } else if (!orderItemRequestDTO.getChildBundleOrderItems().isEmpty())  {
+            AdvancedProductBundleOrderItemRequest advBundleItemRequest = new AdvancedProductBundleOrderItemRequest();
+            advBundleItemRequest.setCategory(category);
+            advBundleItemRequest.setProductBundle((ProductBundle) product);
+            advBundleItemRequest.setSku(sku);
+            advBundleItemRequest.setQuantity(orderItemRequestDTO.getQuantity());
+            advBundleItemRequest.setItemAttributes(orderItemRequestDTO.getItemAttributes());
+            advBundleItemRequest.setName(product.getName());
+            advBundleItemRequest.setOrder(order);
+            advBundleItemRequest.setSalePriceOverride(orderItemRequestDTO.getOverrideSalePrice());
+            advBundleItemRequest.setRetailPriceOverride(orderItemRequestDTO.getOverrideRetailPrice());
+            advBundleItemRequest.setBundleOrderItems(orderItemRequestDTO.getChildBundleOrderItems());
+            item = orderItemService.createBundleOrderItem(advBundleItemRequest, false);
         } else {
             ProductBundleOrderItemRequest bundleItemRequest = new ProductBundleOrderItemRequest();
             bundleItemRequest.setCategory(category);

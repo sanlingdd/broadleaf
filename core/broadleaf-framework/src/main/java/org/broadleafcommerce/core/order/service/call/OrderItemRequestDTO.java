@@ -19,15 +19,15 @@
  */
 package org.broadleafcommerce.core.order.service.call;
 
-import org.broadleafcommerce.common.money.Money;
-import org.broadleafcommerce.core.catalog.domain.ProductBundle;
-import org.broadleafcommerce.core.order.domain.BundleOrderItem;
-import org.broadleafcommerce.core.order.service.OrderService;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.broadleafcommerce.common.money.Money;
+import org.broadleafcommerce.core.catalog.domain.ProductBundle;
+import org.broadleafcommerce.core.order.domain.BundleOrderItem;
+import org.broadleafcommerce.core.order.service.OrderService;
 
 /**
  * Only the product and quantity are required to add an item to an order.
@@ -58,7 +58,7 @@ public class OrderItemRequestDTO {
     private Map<String,String> itemAttributes = new HashMap<String,String>();
     private List<OrderItemRequestDTO> childOrderItems = new ArrayList<OrderItemRequestDTO>();
     private Long parentOrderItemId;
-    
+
     public OrderItemRequestDTO() {}
     
     public OrderItemRequestDTO(Long productId, Integer quantity) {
@@ -164,5 +164,14 @@ public class OrderItemRequestDTO {
     public void setParentOrderItemId(Long parentOrderItemId) {
         this.parentOrderItemId = parentOrderItemId;
     }
-    
+
+    /**
+     * Used by the advanced bundle to carry the products with dynamic productOption generation
+     *
+     * @return
+     */
+    public List<OrderItemRequestDTO> getChildBundleOrderItems() {
+        return childOrderItems;
+    }
+
 }
