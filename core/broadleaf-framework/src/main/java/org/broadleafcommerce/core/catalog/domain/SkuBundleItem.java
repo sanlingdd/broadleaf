@@ -71,4 +71,42 @@ public interface SkuBundleItem extends Serializable {
      * Removes any currently stored dynamic pricing
      */
     public void clearDynamicPrices();
+
+    /**
+     * Will allow for the selection of a different Sku from the Parent product.
+     *
+     * @return true if the sku allows for the selection of a different Sku from the Parent product.
+     */
+    public Boolean getAllowOtherSkuFromParentProduct();
+
+    public void setAllowOtherSkuFromParentProduct(Boolean allowOtherSkuFromParentProduct);
+
+    /**
+     * The short name used that can be used by the item for a more accessible name within the bundle.
+     *
+     * @return the short name
+     */
+    public String getShortName();
+
+    public void setShortName(String shortName);
+
+    /**
+     * The group name which is used for displaying the item.
+     *
+     * For example, this would allow for separation of groups via tabs.
+     *
+     * @return the group name
+     */
+    public String getGroupName();
+
+    public void setGroupName(String groupName);
+
+    /**
+     * The order in which the group assigned will be displayed.
+     *
+     * @return the group order
+     */
+    public Integer getGroupOrder();
+
+    public void setGroupOrder(Integer groupOrder);
 }

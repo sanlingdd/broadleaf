@@ -19,6 +19,20 @@
  */
 package org.broadleafcommerce.core.catalog.domain;
 
+import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import org.broadleafcommerce.common.extensibility.jpa.copy.DirectCopyTransform;
 import org.broadleafcommerce.common.extensibility.jpa.copy.DirectCopyTransformMember;
 import org.broadleafcommerce.common.extensibility.jpa.copy.DirectCopyTransformTypes;
@@ -38,20 +52,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.springframework.util.ClassUtils;
-
-import java.lang.reflect.Proxy;
-import java.math.BigDecimal;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -105,6 +105,25 @@ public class SkuBundleItemImpl implements SkuBundleItem {
 
     @Transient
     protected DynamicSkuPrices dynamicPrices = null;
+
+    @Column(name = "ALLOW_OTHER_SKUS_FROM_PARENT_PRODUCT")
+    @AdminPresentation(friendlyName = "allowOtherSkuFromParentProduct",
+            hint = "allowOtherSkuFromParentProduct.hint")
+    protected Boolean allowOtherSkuFromParentProduct;
+
+    @Column(name = "SHORT_NAME")
+    @AdminPresentation(friendlyName = "shortName",
+            hint = "shortName.hint")
+    protected String shortName;
+
+    @Column(name = "GROUP_NAME")
+    @AdminPresentation(friendlyName = "groupName",
+            hint = "groupName.hint")
+    protected String groupName;
+
+    @Column(name = "GROUP_ORDER")
+    @AdminPresentation(friendlyName = "groupOrder")
+    protected Integer groupOrder;
 
     @Override
     public Long getId() {
@@ -193,5 +212,45 @@ public class SkuBundleItemImpl implements SkuBundleItem {
     @Override
     public void clearDynamicPrices() {
         this.dynamicPrices = null;
+    }
+
+    @Override
+    public Boolean getAllowOtherSkuFromParentProduct() {
+        return allowOtherSkuFromParentProduct;
+    }
+
+    @Override
+    public void setAllowOtherSkuFromParentProduct(Boolean allowOtherSkuFromParentProduct) {
+        this.allowOtherSkuFromParentProduct = allowOtherSkuFromParentProduct;
+    }
+
+    @Override
+    public String getShortName() {
+        return shortName;
+    }
+
+    @Override
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+
+    @Override
+    public String getGroupName() {
+        return groupName;
+    }
+
+    @Override
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+
+    @Override
+    public Integer getGroupOrder() {
+        return groupOrder;
+    }
+
+    @Override
+    public void setGroupOrder(Integer groupOrder) {
+        this.groupOrder = groupOrder;
     }
 }
