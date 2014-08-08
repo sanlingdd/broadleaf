@@ -68,6 +68,7 @@
     <bean id="blOnePageCheckoutProcessor" class="org.broadleafcommerce.core.web.processor.OnePageCheckoutProcessor"/>
     <bean id="blUncacheableDataProcessor" class="org.broadleafcommerce.core.web.processor.UncacheableDataProcessor"/>
     <bean id="blGoogleUniversalAnalyticsProcessor" class="org.broadleafcommerce.core.web.processor.GoogleUniversalAnalyticsProcessor" />
+    <bean id="blBundleTabsProcessor" class="org.broadleafcommerce.core.web.processor.BundleGroupsProcessor" />
 
     <bean id="blDialectFrameworkProcessors" class="org.springframework.beans.factory.config.SetFactoryBean">
         <property name="sourceSet">
@@ -95,6 +96,7 @@
                 <ref bean="blCreditCardTypesProcessor" />
                 <ref bean="blUncacheableDataProcessor" />
                 <ref bean="blGoogleUniversalAnalyticsProcessor" />
+                <ref bean="blBundleTabsProcessor" />
             </set>
         </property>
     </bean>
