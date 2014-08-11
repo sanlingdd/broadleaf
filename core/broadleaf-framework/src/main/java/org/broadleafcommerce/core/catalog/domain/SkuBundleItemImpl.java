@@ -107,22 +107,19 @@ public class SkuBundleItemImpl implements SkuBundleItem {
     protected DynamicSkuPrices dynamicPrices = null;
 
     @Column(name = "ALLOW_OTHER_SKUS_FROM_PARENT_PRODUCT")
-    @AdminPresentation(friendlyName = "allowOtherSkuFromParentProduct",
-            hint = "allowOtherSkuFromParentProduct.hint")
+    @AdminPresentation(friendlyName = "allowOtherSkuFromParentProduct")
     protected Boolean allowOtherSkuFromParentProduct;
 
     @Column(name = "SHORT_NAME")
-    @AdminPresentation(friendlyName = "shortName",
-            hint = "shortName.hint")
+    @AdminPresentation(friendlyName = "shortName")
     protected String shortName;
 
     @Column(name = "GROUP_NAME")
-    @AdminPresentation(friendlyName = "groupName",
-            hint = "groupName.hint")
+    @AdminPresentation(friendlyName = "groupName", prominent = true)
     protected String groupName;
 
     @Column(name = "GROUP_ORDER")
-    @AdminPresentation(friendlyName = "groupOrder")
+    @AdminPresentation(friendlyName = "groupOrder", prominent = true)
     protected Integer groupOrder;
 
     @Override
