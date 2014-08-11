@@ -20,6 +20,8 @@
 package org.broadleafcommerce.core.web.processor;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -66,7 +68,7 @@ public class BundleGroupsProcessor extends AbstractModelVariableModifierProcesso
         final Long productBundleId = (Long) expression.execute(configuration, arguments);
         final String resultVar = element.getAttributeValue("resultVar");
 
-        HashMap<String, BundleGroupsDTO> groupsDTOs = new HashMap<String, BundleGroupsDTO>();
+        HashMap<String, BundleGroupsDTO> hashGroupDTOs = new HashMap<String, BundleGroupsDTO>();
 
         // Find the bundle
         Product product = catalogService.findProductById(productBundleId);
@@ -77,7 +79,7 @@ public class BundleGroupsProcessor extends AbstractModelVariableModifierProcesso
                 for (SkuBundleItem item : bundleItems) {
                     // Check if the group has already been added
                     String groupKey = item.getGroupName();
-                    BundleGroupsDTO groupDTO = groupsDTOs.containsKey(groupKey) ? groupsDTOs.get(item.getGroupName()) :
+                    BundleGroupsDTO groupDTO = hashGroupDTOs.containsKey(groupKey) ? hashGroupDTOs.get(item.getGroupName()) :
                             new BundleGroupsDTO();
 
                     groupDTO.setShowQuantity(groupDTO.getShowQuantity() || item.getQuantity() > 1);
@@ -91,18 +93,25 @@ public class BundleGroupsProcessor extends AbstractModelVariableModifierProcesso
                     for (ProductOptionXref option : item.getSku().getProduct().getProductOptionXrefs()) {
                         headers.add(option.getProductOption().getAttributeName());
                     }
-
                     groupDTO.setGroupName(item.getGroupName());
-                    // TODO add order
-//                    groupDTO.setGroupOrder(item.getGroupOrder());
+                    groupDTO.setGroupOrder(item.getGroupOrder());
                     groupDTO.setHeaders(headers);
                     groupDTO.getItems().add(item);
-                    groupsDTOs.put(item.getGroupName(), groupDTO);
+                    hashGroupDTOs.put(item.getGroupName(), groupDTO);
                 }
             }
 
-            if (!groupsDTOs.isEmpty()) {
-                addToModel(arguments, resultVar, groupsDTOs);
+            List<BundleGroupsDTO> groups = new ArrayList<BundleGroupsDTO>(hashGroupDTOs.values());
+
+            Collections.sort(groups, new Comparator<BundleGroupsDTO>() {
+                @Override
+                public int compare(BundleGroupsDTO o1, BundleGroupsDTO o2) {
+                    return o1.getGroupOrder().compareTo(o2.getGroupOrder());
+                }
+            });
+
+            if (!groups.isEmpty()) {
+                addToModel(arguments, resultVar, groups);
             }
         }
     }
