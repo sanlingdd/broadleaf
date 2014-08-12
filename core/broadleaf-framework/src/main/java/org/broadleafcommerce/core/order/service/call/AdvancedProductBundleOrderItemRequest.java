@@ -39,6 +39,7 @@ public class AdvancedProductBundleOrderItemRequest {
     protected int quantity;
     protected ProductBundle productBundle;
     private Map<String,String> itemAttributes = new HashMap<String,String>();
+    private Map<Long,Map<String,String>> childItemAttributesMap = new HashMap<Long,Map<String,String>>();
     protected Money salePriceOverride;
     protected Money retailPriceOverride;
     protected List<OrderItemRequestDTO> bundleOrderItems = new ArrayList<OrderItemRequestDTO>();
@@ -104,9 +105,16 @@ public class AdvancedProductBundleOrderItemRequest {
         return itemAttributes;
     }
 
-    public AdvancedProductBundleOrderItemRequest setItemAttributes(Map<String, String> itemAttributes) {
+    public void setItemAttributes(Map<String, String> itemAttributes) {
         this.itemAttributes = itemAttributes;
-        return this;
+    }
+
+    public Map<Long, Map<String, String>> getChildItemAttributesMap() {
+        return childItemAttributesMap;
+    }
+
+    public void setChildItemAttributesMap(Map<Long, Map<String, String>> childItemAttributesMap) {
+        this.childItemAttributesMap = childItemAttributesMap;
     }
 
     public Money getSalePriceOverride() {

@@ -438,7 +438,7 @@ public class OrderItemServiceImpl implements OrderItemService {
             bundleOrderItem.setBaseRetailPrice(itemRequest.getRetailPriceOverride());
         }
 
-        replaceChildBundleItemsWithOptionsWithMatchingSkus(itemRequest);
+        replaceChildBundleItemWithOptionsWithMatchingSku(itemRequest);
 
         for (SkuBundleItem skuBundleItem : productBundle.getSkuBundleItems()) {
 
@@ -461,7 +461,7 @@ public class OrderItemServiceImpl implements OrderItemService {
             bundleItemRequest.setProduct(bundleProduct);
             bundleItemRequest.setQuantity(skuBundleItem.getQuantity());
             bundleItemRequest.setSku(bundleSku);
-            bundleItemRequest.setItemAttributes(itemRequest.getItemAttributes());
+            bundleItemRequest.setItemAttributes(itemRequest.getChildItemAttributesMap().get(bundleSku.getId()));
             bundleItemRequest.setSalePriceOverride(skuBundleItem.getSalePrice());
             bundleItemRequest.setBundleOrderItem(bundleOrderItem);
 
@@ -477,49 +477,51 @@ public class OrderItemServiceImpl implements OrderItemService {
         return bundleOrderItem;
     }
 
-    private void replaceChildBundleItemsWithOptionsWithMatchingSkus(AdvancedProductBundleOrderItemRequest itemRequest) {
+    private void replaceChildBundleItemWithOptionsWithMatchingSku(AdvancedProductBundleOrderItemRequest itemRequest) {
         for (OrderItemRequestDTO item : itemRequest.getBundleOrderItems()) {
             Map<String, String> itemAttributes = item.getItemAttributes();
             // Loop through the Skus on the product bundle and replace them with a matching Sku
             for (SkuBundleItem bundledSku : itemRequest.getProductBundle().getSkuBundleItems()) {
-                // TODO Check if this is an item that is eligible for sku replacement
-                // TODO The flag will need to be added to framework instead of extending SkuBundleItem
-                List<String> attributesFound = new ArrayList<String>();
-                if (bundledSku.getSku().getProduct().getId().equals(item.getProductId())) {
-                    // Loop through all the available Skus
-                    List<Sku> availableSkus = bundledSku.getSku().getProduct().getAllSkus();
-                    for (Sku sku : availableSkus) {
-                        // Loop through all the ProductOptions on the Sku
-                        for (ProductOptionValue optionValue : sku.getProductOptionValuesCollection()) {
-                            String skuAttributeName = optionValue.getProductOption().getAttributeName();
-                            String skuAttributeValue = optionValue.getAttributeValue();
-                            // Loop through the itemAttributes passed in to find matches against the Sku
-                            for (Map.Entry<String, String> requestAttribute : itemAttributes.entrySet()) {
-                                String requestAttributeName = requestAttribute.getKey();
-                                String requestAttributeValue = requestAttribute.getValue();
-                                // If attribute name matches, proceed to check the value
-                                if (skuAttributeName.equals(requestAttributeName)) {
-                                    // If the value matches, add the ProductOption to the list of matching attributes
-                                    if (skuAttributeValue.equals(requestAttributeValue)) {
-                                        attributesFound.add(skuAttributeName);
+                // Check if this is an item that is eligible for sku replacement
+                if (bundledSku.getAllowOtherSkuFromParentProduct()) {
+                    List<String> attributesFound = new ArrayList<String>();
+                    if (bundledSku.getSku().getProduct().getId().equals(item.getProductId())) {
+                        // Loop through all the available Skus
+                        List<Sku> availableSkus = bundledSku.getSku().getProduct().getAllSkus();
+                        for (Sku sku : availableSkus) {
+                            // Loop through all the ProductOptions on the Sku
+                            for (ProductOptionValue optionValue : sku.getProductOptionValuesCollection()) {
+                                String skuAttributeName = optionValue.getProductOption().getAttributeName();
+                                String skuAttributeValue = optionValue.getAttributeValue();
+                                // Loop through the itemAttributes passed in to find matches against the Sku
+                                for (Map.Entry<String, String> requestAttribute : itemAttributes.entrySet()) {
+                                    String requestAttributeName = requestAttribute.getKey();
+                                    String requestAttributeValue = requestAttribute.getValue();
+                                    // If attribute name matches, proceed to check the value
+                                    if (skuAttributeName.equals(requestAttributeName)) {
+                                        // If the value matches, add the ProductOption to the list of matching attributes
+                                        if (skuAttributeValue.equals(requestAttributeValue)) {
+                                            attributesFound.add(skuAttributeName);
+                                        }
                                     }
-                                }
-                            }   // -- End itemAttribute Loop
-                        }   // -- End ProductOptions on Sku loop
-                        // Set sku if it matched on all attributes otherwise clear the matches found for the next sku
-                        if (itemAttributes.size() == attributesFound.size()) {
-                            bundledSku.setSku(sku);
-                            // A match has been found, clear the list
-                            attributesFound.clear();
-                        } else {
-                            attributesFound.clear();
-                        }
-                    }   // -- End Sku loop
+                                }   // -- End itemAttribute Loop
+                            }   // -- End ProductOptions on Sku loop
+                            // Set sku if it matched on all attributes otherwise clear the matches found for the next sku
+                            if (itemAttributes.size() == attributesFound.size()) {
+                                bundledSku.setSku(sku);
+                                // A match has been found, clear the list
+                                attributesFound.clear();
+                            } else {
+                                attributesFound.clear();
+                            }
+                        }   // -- End Sku loop
+                        // Set the correct item attributes to the request for replaced sku
+                        itemRequest.getChildItemAttributesMap().put(bundledSku.getSku().getId(), itemAttributes);
+                    }
                 }
             }   // -- End loop on the bundledSkus which are eligible for Sku matching based on ProductOptions
         }   // -- End loop on bundles items that were passed in with ProductOptions selected on the front end
         // Clear out the child items; All items were replaced by a match otherwise a it maintained the original Sku
         itemRequest.getBundleOrderItems().clear();
     }
-
 }
