@@ -111,7 +111,7 @@ public class SkuBundleItemImpl implements SkuBundleItem {
     protected Boolean allowOtherSkuFromParentProduct;
 
     @Column(name = "SHORT_NAME")
-    @AdminPresentation(friendlyName = "shortName")
+    @AdminPresentation(friendlyName = "shortName", prominent = true)
     protected String shortName;
 
     @Column(name = "GROUP_NAME")
