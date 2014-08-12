@@ -34,6 +34,7 @@ import org.broadleafcommerce.core.catalog.domain.SkuBundleItem;
 public class BundleGroupsDTO {
 
     public String groupName;
+    public String groupLink;
     public Integer groupOrder;
     public List<String> headers = new ArrayList<String>();
     public Boolean showQuantity = false;
@@ -45,6 +46,14 @@ public class BundleGroupsDTO {
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
+    }
+
+    public String getGroupLink() {
+        return groupLink;
+    }
+
+    public void setGroupLink(String groupLink) {
+        this.groupLink = groupLink;
     }
 
     public Integer getGroupOrder() {
