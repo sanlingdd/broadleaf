@@ -2,7 +2,7 @@
  * #%L
  * BroadleafCommerce Common Libraries
  * %%
- * Copyright (C) 2009 - 2013 Broadleaf Commerce
+ * Copyright (C) 2009 - 2014 Broadleaf Commerce
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,32 +17,11 @@
  * limitations under the License.
  * #L%
  */
-package org.broadleafcommerce.common.site.domain;
-
-import java.io.Serializable;
-import java.util.List;
+package org.broadleafcommerce.common.web;
 
 /**
  * @author Jeff Fischer
  */
-public interface Catalog extends Serializable {
-
-    Long getId();
-
-    void setId(Long id);
-
-    String getName();
-
-    void setName(String name);
-
-    @Deprecated
-    List<Site> getSites();
-
-    @Deprecated
-    void setSites(List<Site> sites);
-    
-    public List<SiteCatalogXref> getSiteXrefs();
-
-    public void setSiteXrefs(List<SiteCatalogXref> siteXrefs);
-
+public enum DeployState {
+    SANDBOX,PRODUCTION,UNDEFINED
 }

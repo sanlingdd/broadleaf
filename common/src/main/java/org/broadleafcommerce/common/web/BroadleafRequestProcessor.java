@@ -61,7 +61,7 @@ public class BroadleafRequestProcessor extends AbstractBroadleafWebRequestProces
     private static String REQUEST_DTO_PARAM_NAME = BroadleafRequestFilter.REQUEST_DTO_PARAM_NAME;
     public static String REPROCESS_PARAM_NAME = "REPROCESS_BLC_REQUEST";
     
-    public static final String SITE_ENFORCE_PRODUCTION_WORKFLOW_KEY = "site.enforce.production.workflow.update";
+    private static final String SITE_STRICT_VALIDATE_PRODUCTION_CHANGES_KEY = "site.strict.validate.production.changes";
 
     @Resource(name = "blSiteResolver")
     protected BroadleafSiteResolver siteResolver;
@@ -87,8 +87,11 @@ public class BroadleafRequestProcessor extends AbstractBroadleafWebRequestProces
     @Value("${thymeleaf.threadLocalCleanup.enabled}")
     protected boolean thymeleafThreadLocalCleanupEnabled = true;
 
-    @Value("${" + SITE_ENFORCE_PRODUCTION_WORKFLOW_KEY + ":false}")
-    protected boolean enforceSiteProductionWorkflowUpdate = false;
+    @Value("${" + SITE_STRICT_VALIDATE_PRODUCTION_CHANGES_KEY + ":false}")
+    protected boolean siteStrictValidateProductionChanges = false;
+
+    @Value("${enterprise.use.production.sandbox.mode}")
+    protected boolean isProductionSandBoxMode;
     
     @Resource(name="blEntityExtensionManagers")
     protected Map<String, ExtensionManager> entityExtensionManagers;
@@ -107,8 +110,10 @@ public class BroadleafRequestProcessor extends AbstractBroadleafWebRequestProces
         }
         brc.setAdmin(false);
 
-        if (enforceSiteProductionWorkflowUpdate) {
-            brc.getAdditionalProperties().put(SITE_ENFORCE_PRODUCTION_WORKFLOW_KEY, enforceSiteProductionWorkflowUpdate);
+        if (siteStrictValidateProductionChanges) {
+            brc.setValidateProductionChangesState(ValidateProductionChangesState.SITE);
+        } else {
+            brc.setValidateProductionChangesState(ValidateProductionChangesState.UNDEFINED);
         }
 
         BroadleafRequestContext.setBroadleafRequestContext(brc);
@@ -157,6 +162,7 @@ public class BroadleafRequestProcessor extends AbstractBroadleafWebRequestProces
         brc.setLocale(locale);
         brc.setBroadleafCurrency(currency);
         brc.setSandBox(currentSandbox);
+        brc.setDeployBehavior(isProductionSandBoxMode ? DeployBehavior.CLONE_PARENT : DeployBehavior.OVERWRITE_PARENT);
 
         // Note that this must happen after the request context is set up as resolving a theme is dependent on site
         Theme theme = themeResolver.resolveTheme(request);
