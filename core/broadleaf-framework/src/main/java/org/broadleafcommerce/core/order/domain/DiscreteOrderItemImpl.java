@@ -380,22 +380,7 @@ public class DiscreteOrderItemImpl extends OrderItemImpl implements DiscreteOrde
         if (id != null && other.id != null) {
             return id.equals(other.id);
         }
-
-        if (bundleOrderItem == null) {
-            if (other.bundleOrderItem != null) {
-                return false;
-            }
-        } else if (!bundleOrderItem.equals(other.bundleOrderItem)) {
-            return false;
-        }
-        if (sku == null) {
-            if (other.sku != null) {
-                return false;
-            }
-        } else if (!sku.equals(other.sku)) {
-            return false;
-        }
-        return true;
+        return false;
     }
 
     @Override

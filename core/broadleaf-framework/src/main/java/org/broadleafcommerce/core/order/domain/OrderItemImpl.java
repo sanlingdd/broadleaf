@@ -801,74 +801,7 @@ public class OrderItemImpl implements OrderItem, Cloneable, AdminMainEntity, Cur
         if (id != null && other.id != null) {
             return id.equals(other.id);
         }
-
-        if (category == null) {
-            if (other.category != null) {
-                return false;
-            }
-        } else if (!category.equals(other.category)) {
-            return false;
-        }
-        if (giftWrapOrderItem == null) {
-            if (other.giftWrapOrderItem != null) {
-                return false;
-            }
-        } else if (!giftWrapOrderItem.equals(other.giftWrapOrderItem)) {
-            return false;
-        }
-        if (order == null) {
-            if (other.order != null) {
-                return false;
-            }
-        } else if (!order.equals(other.order)) {
-            return false;
-        }
-        if (orderItemType == null) {
-            if (other.orderItemType != null) {
-                return false;
-            }
-        } else if (!orderItemType.equals(other.orderItemType)) {
-            return false;
-        }
-        if (personalMessage == null) {
-            if (other.personalMessage != null) {
-                return false;
-            }
-        } else if (!personalMessage.equals(other.personalMessage)) {
-            return false;
-        }
-        if (price == null) {
-            if (other.price != null) {
-                return false;
-            }
-        } else if (!price.equals(other.price)) {
-            return false;
-        }
-        if (quantity != other.quantity) {
-            return false;
-        }
-        if (retailPrice == null) {
-            if (other.retailPrice != null) {
-                return false;
-            }
-        } else if (!retailPrice.equals(other.retailPrice)) {
-            return false;
-        }
-        if (salePrice == null) {
-            if (other.salePrice != null) {
-                return false;
-            }
-        } else if (!salePrice.equals(other.salePrice)) {
-            return false;
-        }
-        if (parentOrderItem == null) {
-            if (other.parentOrderItem != null) {
-                return false;
-            }
-        } else if (!parentOrderItem.equals(other.parentOrderItem)) {
-            return false;
-        }
-        return true;
+        return false;
     }
 
     public static class Presentation {
