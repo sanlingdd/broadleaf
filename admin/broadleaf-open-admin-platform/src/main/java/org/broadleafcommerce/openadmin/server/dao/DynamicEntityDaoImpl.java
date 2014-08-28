@@ -1185,6 +1185,11 @@ public class DynamicEntityDaoImpl implements DynamicEntityDao, ApplicationContex
         for (Class<?> parentClass : parentClasses) {
             clonedParentClasses.add(parentClass);
         }
+
+        if (clonedParentClasses.contains(targetClass)) {
+            return;
+        }
+
         clonedParentClasses.add(targetClass);
         Map<String, FieldMetadata> newFields = getMergedPropertiesRecursively(
             ceilingEntityFullyQualifiedClassname,
