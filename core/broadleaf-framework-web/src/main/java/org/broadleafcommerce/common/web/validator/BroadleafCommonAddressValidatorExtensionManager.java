@@ -1,8 +1,8 @@
 /*
  * #%L
- * BroadleafCommerce Framework
+ * BroadleafCommerce Framework Web
  * %%
- * Copyright (C) 2009 - 2013 Broadleaf Commerce
+ * Copyright (C) 2009 - 2014 Broadleaf Commerce
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,19 @@
  * limitations under the License.
  * #L%
  */
-package org.broadleafcommerce.core.web.controller.catalog;
+package org.broadleafcommerce.common.web.validator;
 
 import org.broadleafcommerce.common.extension.ExtensionManager;
 import org.springframework.stereotype.Service;
 
-
 /**
- * @author Andre Azzolini (apazzolini)
+ * @author Elbert Bautista (elbertbautista)
  */
-@Service("blBroadleafCatalogControllerExtensionManager")
-public class BroadleafCatalogControllerExtensionManager extends ExtensionManager<BroadleafCatalogControllerExtensionHandler> {
+@Service("blBroadleafCommonAddressValidatorExtensionManager")
+public class BroadleafCommonAddressValidatorExtensionManager extends ExtensionManager<BroadleafCommonAddressValidatorExtensionHandler> {
 
-    public BroadleafCatalogControllerExtensionManager() {
-        super(BroadleafCatalogControllerExtensionHandler.class);
+    public BroadleafCommonAddressValidatorExtensionManager() {
+        super(BroadleafCommonAddressValidatorExtensionHandler.class);
     }
 
     /**
@@ -39,6 +38,6 @@ public class BroadleafCatalogControllerExtensionManager extends ExtensionManager
      */
     @Override
     public boolean continueOnHandled() {
-        return false;
+        return true;
     }
 }

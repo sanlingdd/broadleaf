@@ -1,8 +1,8 @@
 /*
  * #%L
- * BroadleafCommerce Framework
+ * BroadleafCommerce Framework Web
  * %%
- * Copyright (C) 2009 - 2013 Broadleaf Commerce
+ * Copyright (C) 2009 - 2014 Broadleaf Commerce
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,19 @@
  * limitations under the License.
  * #L%
  */
-package org.broadleafcommerce.common.web;
+package org.broadleafcommerce.common.web.validator;
 
-import org.broadleafcommerce.common.extension.AbstractExtensionHandler;
-import org.broadleafcommerce.common.extension.ExtensionResultHolder;
+import org.broadleafcommerce.common.extension.ExtensionHandler;
 import org.broadleafcommerce.common.extension.ExtensionResultStatusType;
-
+import org.broadleafcommerce.common.web.form.BroadleafFormType;
+import org.broadleafcommerce.profile.core.domain.Address;
+import org.springframework.validation.Errors;
 
 /**
- * @author Andre Azzolini (apazzolini)
+ * @author Elbert Bautista (elbertbautista)
  */
-public class AbstractBroadleafThymeleafViewResolverExtensionHandler extends AbstractExtensionHandler 
-        implements BroadleafThymeleafViewResolverExtensionHandler {
-    
-    @Override
-    public ExtensionResultStatusType overrideView(ExtensionResultHolder erh) {
-        return ExtensionResultStatusType.NOT_HANDLED;
-    }
+public interface BroadleafCommonAddressValidatorExtensionHandler extends ExtensionHandler {
+
+    public ExtensionResultStatusType validate(BroadleafFormType formType, Address address, Errors errors);
 
 }
