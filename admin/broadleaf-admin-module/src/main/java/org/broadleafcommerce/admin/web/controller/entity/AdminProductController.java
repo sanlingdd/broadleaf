@@ -265,7 +265,7 @@ public class AdminProductController extends AdminBasicEntityController {
             @RequestParam  MultiValueMap<String, String> requestParams) throws Exception {
         if ("additionalSkus".equals(collectionField)) {
             return showAddAdditionalSku(request, response, model, id, pathVars);
-        } 
+        }
         return super.showAddCollectionItem(request, response, model, pathVars, id, collectionField, requestParams);
     }
 
@@ -297,7 +297,7 @@ public class AdminProductController extends AdminBasicEntityController {
         }
         
         form.removeListGrid("defaultSku.skuAttributes");
-        
+        model.addAttribute("additionalControllerClasses", "product-form");
         return view;
     }
     

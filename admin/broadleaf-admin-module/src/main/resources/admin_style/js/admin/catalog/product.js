@@ -29,37 +29,75 @@
             }, function(data) {
                 BLCAdmin.listGrid.replaceRelatedListGrid($(data));
             });
+        },
+
+        addOnChangeTriggers : function($form) {
+            $form.find('#field-pricingModel').on('change', function() {
+                BLCAdmin.product.initializePricingModelField($form);
+            });
+        },
+
+        /**
+         * Show / hide certain fields on the product screen based on currently selected values
+         */
+        initializeProductFormFields : function($form) {
+            this.initializePricingModelField($form);
+        },
+
+        initializePricingModelField : function($form) {
+            var $pricingModel = $form.find('#field-pricingModel');
+            var $bundlePromotable = $form.find('#field-bundlePromotable');
+
+            var pricingModelValue;
+            if ($pricingModel.find('select').length > 0) {
+                pricingModelValue = $pricingModel.find('select').val();
+            } else {
+                pricingModelValue = $pricingModel.find('input[type="radio"]:checked').val();
+            }
+
+            if (pricingModelValue == "ITEM_SUM") {
+                $bundlePromotable.addClass('hidden');
+            } else if (pricingModelValue == "BUNDLE") {
+                $bundlePromotable.removeClass('hidden');
+            }
         }
 
     };
+
+    BLCAdmin.addInitializationHandler(function($container) {
+        var $form = $container.closest('form.product-form');
+        BLCAdmin.product.addOnChangeTriggers($form);
+        BLCAdmin.product.initializeProductFormFields($form);
+    });
     
 })(jQuery, BLCAdmin);
 
 $(document).ready(function() {
-    
-    $('body').on('click', 'button.generate-skus', function() {
+
+    var $body = $('body');
+    $body.on('click', 'button.generate-skus', function() {
         var $container = $(this).closest('div.listgrid-container');
-        
+
         BLC.ajax({
             url : $(this).data('actionurl'),
             type : "GET"
         }, function(data) {
             var alertType = data.error ? 'alert' : '';
-            
+
             BLCAdmin.listGrid.showAlert($container, data.message, {
                 alertType: alertType,
                 clearOtherAlerts: true
             });
-            
+
             if (data.skusGenerated > 0) {
                 BLCAdmin.product.refreshSkusGrid($container, data.listGridUrl);
             }
         });
-        
+
         return false;
     });
 
-    $('body').on('change', "input[name=\"fields['defaultCategory'].value\"]", function(event, fields) {
+    $body.on('change', "input[name=\"fields['defaultCategory'].value\"]", function(event, fields) {
         var $fieldBox = $(event.target).closest('.field-box');
         var $prefix = $fieldBox.find('input.generated-url-prefix');
 
@@ -69,7 +107,7 @@ $(document).ready(function() {
                 'class' : "generated-url-prefix"
             })).find('input.generated-url-prefix');
         }
-        
+
         $prefix.val(fields['url']);
     });
 });

@@ -105,7 +105,7 @@ public interface ProductBundle extends Product, Serializable {
      * of Item1 and Item2, and the user adds Item1 and Item2 to the cart
      * separately, if this is true then these items will be bundled into a
      * single BundleOrderItem instead of unique items in the cart
-     * 
+     *
      * <b>NOTE: THIS IS NOT YET SUPPORTED BY BROADLEAF</b>
      * 
      * @param autoBundle
@@ -121,23 +121,25 @@ public interface ProductBundle extends Product, Serializable {
      * Note: this is only applicable when the pricing model is the sum of the
      * bundle items
      * 
-     * <b>NOTE: THIS IS NOT YET SUPPORTED BY BROADLEAF</b>
+     * <b>NOTE: THIS IS NOT SUPPORTED BY BROADLEAF. It has been excluded from the admin and set to FALSE by default.</b>
      * 
      * @return <b>true</b> if the items should be included in the promotion
      *         engine, <b>false</b> otherwise
      */
+    @Deprecated
     public Boolean getItemsPromotable();
 
     /**
      * Sets whether or not the items in this bundle should be considered for
      * promotions using the promotion engine
-     * 
-     * <b>NOTE: THIS IS NOT YET SUPPORTED BY BROADLEAF</b>
+     *
+     * <b>NOTE: THIS IS NOT SUPPORTED BY BROADLEAF. It has been excluded from the admin and set to FALSE by default.</b>
      * 
      * @param itemsPromotable
      *            Whether or not the items in the bundle should be considered
      *            for promotions
      */
+    @Deprecated
     public void setItemsPromotable(Boolean itemsPromotable);
 
     /**
@@ -145,9 +147,7 @@ public interface ProductBundle extends Product, Serializable {
      * <b>Note:</b> this should only be used if the pricing model for the bundle
      * uses the pricing on the bundle itself and not on the sum of its bundle
      * items
-     * 
-     * <b>NOTE: THIS IS NOT YET SUPPORTED BY BROADLEAF</b>
-     * 
+     *
      * @return <b>true</b> if the bundle itself should be available for
      *         promotion, <b>false</b> otherwise
      */
@@ -159,8 +159,6 @@ public interface ProductBundle extends Product, Serializable {
      * uses the pricing on the bundle itself and not on the sum of its bundle
      * items
      * 
-     * <b>NOTE: THIS IS NOT YET SUPPORTED BY BROADLEAF</b>
-     *
      * @param bundlePromotable
      *            Whether or not the bundle itself should be available for
      *            promotion
